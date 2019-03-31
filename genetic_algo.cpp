@@ -36,7 +36,9 @@ void genetic_algo::selection() {
 }
 
 void genetic_algo::crossover(vector<tour> parent) {
-    for()
+    for() {
+
+    }
 }
 
 
