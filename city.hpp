@@ -14,12 +14,16 @@ class city {
 private:
     string name;
     pair<double, double> coordinate;
+    friend ostream& operator<<(ostream& os, const city& t) {
+        os << t.name;
+        return os;
+    }
 
 public:
     city(string, double, double);
     pair<double, double> get_coordinates() const;
     double get_distance_between_cities(city);
-    bool operator==(city& rhs) {
+    bool operator==(const city& rhs) {
         if(name != rhs.name) {
             return false;
         }
@@ -28,7 +32,7 @@ public:
         }
         return (coordinate.second == rhs.coordinate.second);
     }
-    bool operator!=(city& rhs) {
+    bool operator!=(const city& rhs) {
         return ((*this)==rhs);
     }
 };

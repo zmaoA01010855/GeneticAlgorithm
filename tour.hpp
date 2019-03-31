@@ -3,6 +3,8 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
+#include <iostream>
+#include <iterator>
 #include <random>
 #include "city.hpp"
 
@@ -15,16 +17,26 @@ class tour {
 private:
     vector<city> citylist;
     double fitness;
+    double distance;
 
 public:
     tour() {};
-    tour(vector<city> a) : citylist(a), fitness(0) {};
     void add_tour(city);
-    double get_tour_distance();
-    inline double get_fitness() {return fitness;}
+    bool city_exist(city);
+    double get_distance();
+    void generate_fitness();
+    double get_fitness() const;
     void shuffle_cities();
     void mutation();
-    bool operator==(tour& rhs) {
+    tour merge(vector<tour>);
+    void print_city();
+
+    tour& operator=(tour& rhs) {
+        this->citylist = rhs.citylist;
+        this->fitness = rhs.get_fitness();
+        return *this;
+    }
+    bool operator==(const tour& rhs) {
         for(auto it1 = citylist.begin(); it1 != citylist.end(); ++it1) {
             for(auto it2 = rhs.citylist.begin(); it2 != rhs.citylist.end(); ++it2) {
                 if(it1->get_coordinates() != it2->get_coordinates()) {
@@ -34,8 +46,11 @@ public:
         }
         return true;
     }
-    bool operator!=(tour& rhs) {
+    bool operator!=(const tour& rhs) {
         return ((*this)==rhs);
+    }
+    bool operator<(const tour& rhs) {
+        return (this->get_fitness() < rhs.get_fitness());
     }
 };
 

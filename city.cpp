@@ -16,10 +16,12 @@ city::city(string name, double x, double y) {
     }
 }
 
+//Get coordinates of the city
 pair<double, double> city::get_coordinates() const {
     return coordinate;
 }
 
+//Get the distance between two cities
 double city::get_distance_between_cities(city other) {
     double distance = sqrt(pow(this->get_coordinates().first - other.get_coordinates().first, SQUARE)
             + pow(this->get_coordinates().second - other.get_coordinates().second, SQUARE));

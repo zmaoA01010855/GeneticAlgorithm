@@ -2,30 +2,34 @@
 #define GENETICALGORITHM_GENETIC_ALGO_HPP
 
 #include <map>
+#include <cstdlib>
+#include <iostream>
+#include <iterator>
 #include "tour.hpp"
 
-
-
-const int POPULATION_SIZE = 32;
-const int SHUFFLES = 64;
-const int ITERATIONS = 1000;
-const int PARENT_POOL_SIZE = 5;
 const int NUM_PARENTS = 2;
 const int NUM_ELITE = 1;
 
+using namespace std;
+
 class genetic_algo {
 private:
-    map<tour, double> population_list;
-    tour elite;
-    vector<tour> parent;
+    vector<tour> population_list;
+    multimap<double, tour> order_map;
+    multimap<double, tour> elite;
 
 public:
-    genetic_algo(vector<tour>);
-    inline tour get_best_elite();
-    inline void set_elite(tour elite) {this->elite = elite;}
+    genetic_algo(){};
+    void add_tour(tour);
+    tour get_fittest_tour();
+    multimap<double, tour> generate_tour_order(vector<tour> t);
+    bool tour_exist(tour);
     void selection();
-    void crossover(vector<tour>);
-//    void mutation(tour);
+    void crossover();
+    void mutation();
+    double evaluation();
+    void report();
+
 };
 
 
