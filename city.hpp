@@ -19,6 +19,18 @@ public:
     city(string, double, double);
     pair<double, double> get_coordinates() const;
     double get_distance_between_cities(city);
+    bool operator==(city& rhs) {
+        if(name != rhs.name) {
+            return false;
+        }
+        if(coordinate.first != rhs.coordinate.first) {
+            return false;
+        }
+        return (coordinate.second == rhs.coordinate.second);
+    }
+    bool operator!=(city& rhs) {
+        return ((*this)==rhs);
+    }
 };
 
 

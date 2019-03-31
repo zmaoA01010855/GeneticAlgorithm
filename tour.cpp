@@ -9,6 +9,7 @@ double tour::get_tour_distance() {
     for(auto it = citylist.begin(); it != citylist.end() - 1; ++it) {
         distance += it->get_distance_between_cities(*(it + 1));
     }
+    fitness = 1 / distance;
     return distance;
 }
 

@@ -4,19 +4,39 @@
 
 #include "genetic_algo.hpp"
 
-void genetic_algo::add_tour(tour t) {
-    population_list.push_back(t);
+genetic_algo::genetic_algo(vector<tour> tourlist) {
+    for(auto it = tourlist.begin(); it != tourlist.end(); ++it) {
+        population_list.insert(make_pair((*it), it->get_fitness()));
+    }
+    elite = get_best_elite();
+
+}
+
+tour genetic_algo::get_best_elite() {
+    double fitness = INT8_MAX;
+    tour fittest = population_list.begin()->first;
+    for(auto it = population_list.begin(); it != population_list.end(); ++it) {
+        if(it->second < fitness) {
+            fitness = it->second;
+            fittest = it->first;
+        }
+    }
 }
 
 void genetic_algo::selection() {
-    double max = 0;
-    auto elite = population_list.begin();
+    double fitness = INT8_MAX;
+    tour fittest = population_list.begin()->first;
     for(auto it = population_list.begin(); it != population_list.end(); ++it) {
-        if(it->get_tour_distance() > max) {
-            max = it->get_tour_distance();
-            elite = it;
+        if(it->second < fitness) {
+            fitness = it->second;
+            fittest = it->first;
         }
     }
-    this->elite = *elite;
+    this->set_elite(fittest);
 }
+
+void genetic_algo::crossover(vector<tour> parent) {
+    for()
+}
+
 
