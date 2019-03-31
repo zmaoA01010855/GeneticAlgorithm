@@ -22,13 +22,14 @@ private:
 public:
     tour() {};
     void add_tour(city);
+    void remove_city(city);
+    inline vector<city> get_city_list() const {return citylist;};
     bool city_exist(city);
     double get_distance();
     void generate_fitness();
     double get_fitness() const;
     void shuffle_cities();
     void mutation();
-    tour merge(vector<tour>);
     void print_city();
 
     tour& operator=(tour& rhs) {
@@ -38,7 +39,7 @@ public:
     }
     bool operator==(const tour& rhs) {
         for(auto it1 = citylist.begin(); it1 != citylist.end(); ++it1) {
-            for(auto it2 = rhs.citylist.begin(); it2 != rhs.citylist.end(); ++it2) {
+            for(auto it2 = rhs.get_city_list().begin(); it2 != rhs.get_city_list().end(); ++it2) {
                 if(it1->get_coordinates() != it2->get_coordinates()) {
                     return false;
                 }

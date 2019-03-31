@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include "genetic_algo.hpp"
 const int CITIE_IN_TOUR = 32;
-const int POPULATION_SIZE = 32;
 const int SHUFFLES = 64;
 const int ITERATIONS = 1000;
+const double IMPROVEMENT = 1.0;
 
 using namespace std;
 
@@ -34,31 +34,38 @@ int main() {
         }
     }
 
+    tour.print_city();
+    cout << "Last input tour: " << tour.get_distance() << endl;
+
     //Generate population list
     int pop_size = 0;
     while(pop_size < POPULATION_SIZE) {
         int shuffle = 0;
         while(shuffle < SHUFFLES) {
             tour.shuffle_cities();
+            shuffle++;
         }
         if(!ga.tour_exist(tour)) {
             ga.add_tour(tour);
-        } else {
-            pop_size--;
+            pop_size++;
         }
-        pop_size++;
     }
 
     int iteration = 0;
-    while(iteration < ITERATIONS || ga.evaluation() == 0) {
+    double fitness = ga.evaluation();
+    while(iteration < ITERATIONS || ga.evaluation() > IMPROVEMENT) {
         ga.selection();
         ga.crossover();
         ga.mutation();
+        fitness = ga.evaluation();
+        cout << fitness << " ";
         iteration++;
     }
 
-    ga.report();
 
-    std::cout << "Hello, World!" << std::endl;
+    cout << "\n";
+
+    cout << "After interation " << iteration << endl;
+    ga.report();
     return 0;
 }

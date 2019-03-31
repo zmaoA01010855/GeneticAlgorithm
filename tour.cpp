@@ -16,6 +16,16 @@ void tour::add_tour(city c) {
     }
 }
 
+void tour::remove_city(city c) {
+    size_t sz = citylist.size();
+    for(unsigned i = 0; i < sz; i++) {
+        if(citylist[i] == c) {
+            citylist.erase(citylist.begin(), citylist.begin() + (int)i);
+            break;
+        }
+    }
+}
+
 //See if the city has already existed in the tour
 bool tour::city_exist(city c) {
     for(auto it = citylist.begin(); it != citylist.end(); ++it) {
@@ -28,14 +38,14 @@ bool tour::city_exist(city c) {
 
 double tour::get_distance() {
     double distance = 0;
-    for(auto it = citylist.begin(); it != citylist.end() - 1; ++it) {
-        distance += it->get_distance_between_cities(*(it + 1));
+    for(unsigned it = 0; it < citylist.size() - 1; it++) {
+        distance += citylist[it].get_distance_between_cities(citylist[it + 1]);
     }
     return distance;
 }
 
 void tour::generate_fitness() {
-    fitness = 1 / get_distance();
+    fitness = 0.001 * get_distance();
 }
 
 double tour::get_fitness() const {
@@ -43,27 +53,9 @@ double tour::get_fitness() const {
 }
 
 void tour::shuffle_cities() {
-    auto ran_gen = default_random_engine{};
-    shuffle(citylist.begin(), citylist.end(), ran_gen);
+    random_shuffle(citylist.begin(), citylist.end());
     generate_fitness();
     distance = get_distance();
-}
-
-tour tour::merge(vector<tour> merge_list) {
-    tour iterative;
-    vector<tour> copy = merge_list;
-    for(auto it = copy.begin(); it != copy.end(); ++it) {
-        for(auto it1 = this->citylist.begin(); it1 != this->citylist.end(); it1 += 3) {
-            iterative.add_tour((*it1));
-        }
-        for(auto it2 = it->citylist.begin(); it2 != it->citylist.end(); ++it2) {
-            if(!iterative.city_exist(*it2)) {
-                iterative.add_tour((*it2));
-            }
-        }
-        *this = iterative;
-    }
-    return *this;
 }
 
 void tour::mutation() {
@@ -87,4 +79,5 @@ void tour::mutation() {
 
 void tour::print_city() {
     print(citylist);
+    cout << "\n";
 }

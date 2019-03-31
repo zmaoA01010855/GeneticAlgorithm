@@ -1,5 +1,9 @@
 #include "genetic_algo.hpp"
 
+bool compare_tour(tour t1, tour t2) {
+    return (t1.get_fitness() < t2.get_fitness());
+}
+
 void genetic_algo::add_tour(tour t) {
     population_list.push_back(t);
     order_map = generate_tour_order(population_list);
@@ -10,18 +14,45 @@ multimap<double, tour> genetic_algo::generate_tour_order(vector<tour> t) {
     for(auto it = t.begin(); it != t.end(); ++it) {
         map.insert(make_pair(it->get_fitness(), (*it)));
     }
+    return map;
 }
 
 tour genetic_algo::get_fittest_tour() {
     double fitness = population_list.begin()->get_fitness();
-    tour best_tour;
+    tour best_tour = elite.begin()->second;
     for(auto it = population_list.begin(); it != population_list.end(); ++it) {
-        if(fitness < it->get_fitness()) {
+        if(fitness > it->get_fitness()) {
             fitness = it->get_fitness();
             best_tour = (*it);
         }
     }
     return best_tour;
+}
+
+tour genetic_algo::merge(vector<tour> merge_list) {
+    tour iterative;
+    vector<tour> copy = merge_list;
+
+    size_t sz1 = copy.size() - 1;
+    for(unsigned i = 0; i < sz1; i++) {
+        size_t sz2 = copy[i].get_city_list().size();
+        for(unsigned j = 0; j < sz2; j += sz1) {
+            if(!iterative.city_exist(copy[i].get_city_list()[j]))
+                iterative.add_tour(copy[i].get_city_list()[j]);
+
+        }
+
+    }
+
+    size_t sz3 = copy[sz1].get_city_list().size();
+    for(unsigned j = 0; j < sz3; j++) {
+        if(iterative.get_city_list().size() != copy[sz1].get_city_list().size()) {
+            if(!iterative.city_exist(copy[sz1].get_city_list()[j]))
+                iterative.add_tour(copy[sz1].get_city_list()[j]);
+        }
+    }
+
+    return iterative;
 }
 
 bool genetic_algo::tour_exist(tour t) {
@@ -34,10 +65,9 @@ bool genetic_algo::tour_exist(tour t) {
 }
 
 void genetic_algo::selection() {
-    tour fittest = order_map.begin()->second;
     if(elite.empty()) {
         int i = 0;
-        for(auto it = order_map.begin(); it != order_map.end() || i < NUM_ELITE; ++it) {
+        for(auto it = order_map.begin(); it != order_map.end() && i < NUM_ELITE; ++it) {
             elite.insert(make_pair(it->first, it->second));
             order_map.erase(order_map.find(it->first));
             i++;
@@ -45,10 +75,9 @@ void genetic_algo::selection() {
     } else {
         int i = 0;
         for(auto it = elite.begin(); it != elite.end(); ++it) {
-            for(auto it1 = order_map.begin(); it1 != order_map.end() || i < NUM_ELITE; ++it) {
+            for(auto it1 = order_map.begin(); it1 != order_map.end() && i < NUM_ELITE; ++it) {
                 if(it->first > it1->first) {
                     elite.erase(elite.find(it->first));
-                    order_map.erase(order_map.find(it1->first));
                     elite.insert(make_pair(it1->first, it1->second));
                 }
                 i++;
@@ -67,17 +96,18 @@ void genetic_algo::crossover() {
         rest_city_list.push_back(it->second);
     }
     int size = 0;
-    while(size < order_map.size()) {
+    while(size < (POPULATION_SIZE - NUM_ELITE)) {
         int random = 0;
         int time = 0;
         vector<tour> cross_parent;
-        auto it = rest_city_list.begin();
+
         while(time < NUM_PARENTS) {
-            random = rand() % cross_parent.size();
+            auto it = rest_city_list.begin();
+            random = rand() % (POPULATION_SIZE - NUM_ELITE);
             cross_parent.push_back(*(random + it));
             time++;
         }
-        city_list.push_back(cross_parent.front().merge(cross_parent));
+        city_list.push_back(merge(cross_parent));
         size++;
     }
     population_list.clear();
@@ -107,8 +137,7 @@ double genetic_algo::evaluation() {
 void genetic_algo::report() {
     cout << "Best tour list: ";
     get_fittest_tour().print_city();
-    cout << "" << endl;
-    cout << "The distance: " << get_fittest_tour().get_distance() << endl;
+    cout << "The shortest distance: " << get_fittest_tour().get_distance() << endl;
 }
 
 
