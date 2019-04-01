@@ -26,6 +26,7 @@ public:
     inline vector<city> get_city_list() const {return citylist;};
     bool city_exist(city);
     double get_distance();
+    void generate_distance();
     void generate_fitness();
     double get_fitness() const;
     void shuffle_cities();

@@ -15,6 +15,7 @@ using namespace std;
 
 class genetic_algo {
 private:
+    tour base_tour;
     vector<tour> population_list;
     multimap<double, tour> order_map;
     multimap<double, tour> elite;

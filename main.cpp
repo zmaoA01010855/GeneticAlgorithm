@@ -6,7 +6,7 @@
 const int CITIE_IN_TOUR = 32;
 const int SHUFFLES = 64;
 const int ITERATIONS = 1000;
-const double IMPROVEMENT = 1.0;
+const double IMPROVEMENT = 0;
 
 using namespace std;
 
@@ -53,19 +53,20 @@ int main() {
 
     int iteration = 0;
     double fitness = ga.evaluation();
-    while(iteration < ITERATIONS || ga.evaluation() > IMPROVEMENT) {
+    while(iteration < ITERATIONS || fitness < IMPROVEMENT) {
+        cout << "\n";
+        cout << "Iteration " << iteration << endl;
         ga.selection();
+//        cout << "selection yes" << endl;
         ga.crossover();
+//        cout << "crossover yes" << endl;
         ga.mutation();
+//        cout << "mutation yes" << endl;
         fitness = ga.evaluation();
-        cout << fitness << " ";
+        ga.report();
         iteration++;
     }
+    cout << "Program end." << endl;
 
-
-    cout << "\n";
-
-    cout << "After interation " << iteration << endl;
-    ga.report();
     return 0;
 }

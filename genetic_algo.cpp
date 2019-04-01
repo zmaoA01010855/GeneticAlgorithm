@@ -12,17 +12,20 @@ void genetic_algo::add_tour(tour t) {
 multimap<double, tour> genetic_algo::generate_tour_order(vector<tour> t) {
     multimap<double, tour> map;
     for(auto it = t.begin(); it != t.end(); ++it) {
-        map.insert(make_pair(it->get_fitness(), (*it)));
+        tour v = (*it);
+        v.generate_fitness();
+        v.generate_distance();
+        map.insert(make_pair(v.get_fitness(), v));
     }
     return map;
 }
 
 tour genetic_algo::get_fittest_tour() {
-    double fitness = population_list.begin()->get_fitness();
+    double fitness = population_list.begin()->get_distance();
     tour best_tour = elite.begin()->second;
     for(auto it = population_list.begin(); it != population_list.end(); ++it) {
-        if(fitness > it->get_fitness()) {
-            fitness = it->get_fitness();
+        if(fitness > it->get_distance()) {
+            fitness = it->get_distance();
             best_tour = (*it);
         }
     }
@@ -51,7 +54,8 @@ tour genetic_algo::merge(vector<tour> merge_list) {
                 iterative.add_tour(copy[sz1].get_city_list()[j]);
         }
     }
-
+    iterative.generate_fitness();
+    iterative.generate_distance();
     return iterative;
 }
 
@@ -65,25 +69,42 @@ bool genetic_algo::tour_exist(tour t) {
 }
 
 void genetic_algo::selection() {
+    multimap<double, tour> elite_copy;
+    multimap<double, tour> copy;
     if(elite.empty()) {
         int i = 0;
-        for(auto it = order_map.begin(); it != order_map.end() && i < NUM_ELITE; ++it) {
-            elite.insert(make_pair(it->first, it->second));
-            order_map.erase(order_map.find(it->first));
+        for(auto it = order_map.begin(); it != order_map.end(); ++it) {
+            if(i < NUM_ELITE) {
+                elite.insert(make_pair(it->first, it->second));
+            } else {
+                copy.insert(make_pair(it->first, it->second));
+            }
             i++;
         }
+        order_map = copy;
     } else {
         int i = 0;
-        for(auto it = elite.begin(); it != elite.end(); ++it) {
-            for(auto it1 = order_map.begin(); it1 != order_map.end() && i < NUM_ELITE; ++it) {
-                if(it->first > it1->first) {
-                    elite.erase(elite.find(it->first));
-                    elite.insert(make_pair(it1->first, it1->second));
+        for(auto it1 = order_map.begin(); it1 != order_map.end(); ++it1) {
+            if(i < NUM_ELITE){
+                for(auto it = elite.begin(); it != elite.end(); ++it) {
+                    if(it->first > it1->first) {
+                        elite_copy.insert(make_pair(it1->first, it1->second));
+                    } else {
+                        elite_copy.insert(make_pair(it->first, it->second));
+                        copy.insert(make_pair(it1->first, it1->second));
+                    }
                 }
-                i++;
+            } else {
+                copy.insert(make_pair(it1->first, it1->second));
             }
+            i++;
         }
+        elite = elite_copy;
+        order_map = copy;
     }
+    base_tour = order_map.begin()->second;
+    base_tour.generate_distance();
+    base_tour.generate_fitness();
 }
 
 void genetic_algo::crossover() {
@@ -112,6 +133,8 @@ void genetic_algo::crossover() {
     }
     population_list.clear();
     for(auto it = city_list.begin(); it != city_list.end(); ++it) {
+        it->generate_distance();
+        it->generate_fitness();
         population_list.push_back((*it));
     }
 }
@@ -121,6 +144,8 @@ void genetic_algo::mutation() {
     multimap<double, tour> flip = generate_tour_order(population_list);
     for(auto it = flip.begin(); it != flip.end(); ++it) {
         it->second.mutation();
+        it->second.generate_distance();
+        it->second.generate_fitness();
         population_list1.push_back(it->second);
     }
     population_list.clear();
@@ -131,10 +156,12 @@ void genetic_algo::mutation() {
 
 double genetic_algo::evaluation() {
     order_map = generate_tour_order(population_list);
-    return (abs(order_map.begin()->first - elite.begin()->first));
+    return (order_map.begin()->first - elite.begin()->first);
 }
 
 void genetic_algo::report() {
+    cout << "Base tour list: ";
+    base_tour.print_city();
     cout << "Best tour list: ";
     get_fittest_tour().print_city();
     cout << "The shortest distance: " << get_fittest_tour().get_distance() << endl;

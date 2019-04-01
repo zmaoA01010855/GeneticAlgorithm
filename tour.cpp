@@ -12,7 +12,7 @@ void tour::add_tour(city c) {
     if(!city_exist(c)) {
         citylist.push_back(c);
         generate_fitness();
-        distance = get_distance();
+        generate_distance();
     }
 }
 
@@ -46,6 +46,10 @@ double tour::get_distance() {
 
 void tour::generate_fitness() {
     fitness = 0.001 * get_distance();
+}
+
+void tour::generate_distance() {
+    distance = get_distance();
 }
 
 double tour::get_fitness() const {
