@@ -1,14 +1,19 @@
 #include "genetic_algo.hpp"
 
-bool compare_tour(tour t1, tour t2) {
-    return (t1.get_fitness() < t2.get_fitness());
-}
-
+/**
+ * Add tour to the container inside of this class.
+ * @param t tour
+ */
 void genetic_algo::add_tour(tour t) {
     population_list.push_back(t);
     order_map = generate_tour_order(population_list);
 }
 
+/**
+ * Get an orderred list of all tours inside of this class.
+ * @param t tour vector
+ * @return multimap contains tour's fitness and tour itself.
+ */
 multimap<double, tour> genetic_algo::generate_tour_order(vector<tour> t) {
     multimap<double, tour> map;
     for(auto it = t.begin(); it != t.end(); ++it) {
@@ -20,6 +25,10 @@ multimap<double, tour> genetic_algo::generate_tour_order(vector<tour> t) {
     return map;
 }
 
+/**
+ * Get the fitteset tour of curent iteration.
+ * @return the fittest tour.
+ */
 tour genetic_algo::get_fittest_tour() {
     double fitness = population_list.begin()->get_distance();
     tour best_tour = elite.begin()->second;
@@ -32,6 +41,11 @@ tour genetic_algo::get_fittest_tour() {
     return best_tour;
 }
 
+/**
+ * Merge multiple tour randomly as user requires.
+ * @param merge_list the vector of tour to merge.
+ * @return a merged tour
+ */
 tour genetic_algo::merge(vector<tour> merge_list) {
     tour iterative;
     vector<tour> copy = merge_list;
@@ -41,7 +55,7 @@ tour genetic_algo::merge(vector<tour> merge_list) {
         size_t sz2 = copy[i].get_city_list().size();
         for(unsigned j = 0; j < sz2; j += sz1) {
             if(!iterative.city_exist(copy[i].get_city_list()[j]))
-                iterative.add_tour(copy[i].get_city_list()[j]);
+                iterative.add_city(copy[i].get_city_list()[j]);
 
         }
 
@@ -51,7 +65,7 @@ tour genetic_algo::merge(vector<tour> merge_list) {
     for(unsigned j = 0; j < sz3; j++) {
         if(iterative.get_city_list().size() != copy[sz1].get_city_list().size()) {
             if(!iterative.city_exist(copy[sz1].get_city_list()[j]))
-                iterative.add_tour(copy[sz1].get_city_list()[j]);
+                iterative.add_city(copy[sz1].get_city_list()[j]);
         }
     }
     iterative.generate_fitness();
@@ -59,6 +73,11 @@ tour genetic_algo::merge(vector<tour> merge_list) {
     return iterative;
 }
 
+/**
+ * Check if this class has already contained the tour.
+ * @param t tour to check.
+ * @return bool
+ */
 bool genetic_algo::tour_exist(tour t) {
     for(auto it = population_list.begin(); it != population_list.end(); ++it) {
         if(t == *it) {
@@ -68,6 +87,9 @@ bool genetic_algo::tour_exist(tour t) {
     return false;
 }
 
+/**
+ * Select the elite tour(s)/base tour/rest of tours.
+ */
 void genetic_algo::selection() {
     multimap<double, tour> elite_copy;
     multimap<double, tour> copy;
@@ -107,6 +129,9 @@ void genetic_algo::selection() {
     base_tour.generate_fitness();
 }
 
+/**
+ * Cross all tours except for elite.
+ */
 void genetic_algo::crossover() {
     vector<tour> city_list;
     vector<tour> rest_city_list;
@@ -139,6 +164,9 @@ void genetic_algo::crossover() {
     }
 }
 
+/**
+ * Mutate all tours in this class.
+ */
 void genetic_algo::mutation() {
     vector<tour> population_list1;
     multimap<double, tour> flip = generate_tour_order(population_list);
@@ -154,11 +182,18 @@ void genetic_algo::mutation() {
     }
 }
 
+/**
+ * Evaluate the elite with pervious elite result.
+ * @return
+ */
 double genetic_algo::evaluation() {
     order_map = generate_tour_order(population_list);
     return (order_map.begin()->first - elite.begin()->first);
 }
 
+/**
+ * Print out the info for each iteration.
+ */
 void genetic_algo::report() {
     cout << "Base tour list: ";
     base_tour.print_city();

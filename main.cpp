@@ -3,9 +3,25 @@
 #include "tour.hpp"
 #include <stdlib.h>
 #include "genetic_algo.hpp"
+
+/**
+ * Number of cities in the tour.
+ */
 const int CITIE_IN_TOUR = 32;
+
+/**
+ * Times to shuffle the city list inside of tour.
+ */
 const int SHUFFLES = 64;
+
+/**
+ * Iteration time.
+ */
 const int ITERATIONS = 1000;
+
+/**
+ * Value the fitness to decide iteration should stop or not.
+ */
 const double IMPROVEMENT = 0;
 
 using namespace std;
@@ -28,7 +44,7 @@ int main() {
         string s{str};
         city c{s, x, y};
         if (!tour.city_exist(c)) {
-            tour.add_tour(c);
+            tour.add_city(c);
         } else {
             i--;
         }
@@ -53,15 +69,14 @@ int main() {
 
     int iteration = 0;
     double fitness = ga.evaluation();
+
+    //Iteration of algorithm.
     while(iteration < ITERATIONS || fitness < IMPROVEMENT) {
         cout << "\n";
         cout << "Iteration " << iteration << endl;
         ga.selection();
-//        cout << "selection yes" << endl;
         ga.crossover();
-//        cout << "crossover yes" << endl;
         ga.mutation();
-//        cout << "mutation yes" << endl;
         fitness = ga.evaluation();
         ga.report();
         iteration++;
